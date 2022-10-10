@@ -22,28 +22,25 @@ import java.util.Set;
 
 /**
  * Author: @SDL
+ Dalvik/2.1.0
  */
 public class Kunyu77 extends Spider {
     private static final String siteUrl = "http://api.kunyu77.com";
 
-    private String uAgent = "Dalvik/2.1.0 (Linux; U; Android " + Build.VERSION.RELEASE + "; " + Build.MODEL + " Build/" + Build.ID + ")";
-    private HashMap<String, String> getHeaders(String url,String key) {
+    private String uAgent = "okhttp/3.12.0 (Linux; U; Android " + Build.VERSION.RELEASE + "; " + Build.MODEL + " Build/" + Build.ID + ")";
+
+    private HashMap<String, String> getHeaders(String url) {
         HashMap<String, String> headers = new HashMap<>();
         headers.put("user-agent", uAgent);
-        String TK=Misc.MD5(url, Misc.CharsetUTF8);
-        headers.put("TK",TK);
-        headers.put("t",key);
         return headers;
     }
-    
 
     @Override
     public String homeContent(boolean filter) {
         try {
-            String t = String.valueOf(System.currentTimeMillis()/ 1000);
-            String url = siteUrl + "/api.php/provide/filter";
-            String urlQ = "/api.php/provide/filter";
-            String content = OkHttpUtil.string(url, getHeaders(urlQ,t));
+            String url = siteUrl + "/api.php/provide/videoDetail?ids=" + ids.get(0);
+            String urlx="/api.php/provide/videoDetail" + ids.get(0);
+            String content = OkHttpUtil.string(url, getHeaders(urlx));
             JSONObject jsonObject = new JSONObject(decryptResponse(content)).getJSONObject("data");
             Iterator<String> keys = jsonObject.keys();
             JSONArray classes = new JSONArray();
@@ -58,11 +55,8 @@ public class Kunyu77 extends Spider {
                 classes.put(newCls);
                 try {
                     if (extendsAll == null) {
-                        t = String.valueOf(System.currentTimeMillis()/ 1000);
-                        String filterUrl = siteUrl + "/api.php/provide/searchFilter";
-                        String filterUrlQ = "/api.php/provide/searchFilter";
-                        String filterUrls = filterUrl+"?type_id=0&pagenum=1&pagesize=1";
-                        String filterContent = OkHttpUtil.string(filterUrls, getHeaders(filterUrlQ,t));
+                        String filterUrl = siteUrl + "/api.php/provide/searchFilter?type_id=0&pagenum=1&pagesize=1";
+                        String filterContent = OkHttpUtil.string(filterUrl, getHeaders(filterUrl));
                         JSONObject filterObj = new JSONObject(filterContent).getJSONObject("data").getJSONObject("conditions");
                         extendsAll = new JSONArray();
                         // 年份
@@ -155,11 +149,8 @@ public class Kunyu77 extends Spider {
         try {
             JSONArray videos = new JSONArray();
             try {
-                String t = String.valueOf(System.currentTimeMillis()/ 1000);
-                String url = siteUrl + "/api.php/provide/homeBlock";
-                String urls = url+"?type_id=0&pcode=010110002&version=2.0.4&devid=4ac3fe96a6133de96904b8d3c8cfe16d&package=com.sevenVideo.app.android&sys=android&sysver=7.1.2&brand=realme&model=RMX1931&sj="+t;
-                String urlm ="/api.php/provide/homeBlockrealme4ac3fe96a6133de96904b8d3c8cfe16dRMX1931com.sevenVideo.app.android010110002"+t+"android7.1.22.0.4"+t+"XSpeUFjJ";
-                String content = OkHttpUtil.string(urls, getHeaders(urlm,t));
+                String url = siteUrl + "/api.php/provide/homeBlock?type_id=0";
+                String content = OkHttpUtil.string(url, getHeaders(url));
                 JSONObject jsonObject = new JSONObject(decryptResponse(content));
                 JSONArray jsonArray = jsonObject.getJSONObject("data").getJSONArray("blocks");
                 for (int i = 0; i < jsonArray.length(); i++) {
@@ -194,7 +185,6 @@ public class Kunyu77 extends Spider {
     @Override
     public String categoryContent(String tid, String pg, boolean filter, HashMap<String, String> extend) {
         try {
-            String t = String.valueOf(System.currentTimeMillis()/ 1000);
             String url = siteUrl + "/api.php/provide/searchFilter?type_id=" + tid + "&pagenum=" + pg + "&pagesize=24";
             Set<String> keys = extend.keySet();
             for (String key : keys) {
@@ -203,7 +193,7 @@ public class Kunyu77 extends Spider {
                     continue;
                 url += "&" + key + "=" + URLEncoder.encode(val);
             }
-            String content = OkHttpUtil.string(url, getHeaders(url,t));
+            String content = OkHttpUtil.string(url, getHeaders(url));
             JSONObject dataObject = new JSONObject(decryptResponse(content)).getJSONObject("data");
             JSONArray jsonArray = dataObject.getJSONArray("result");
             JSONArray videos = new JSONArray();
@@ -236,11 +226,8 @@ public class Kunyu77 extends Spider {
     @Override
     public String detailContent(List<String> ids) {
         try {
-            String t = String.valueOf(System.currentTimeMillis()/ 1000);
-            String url = siteUrl + "/api.php/provide/videoDetail";
-            String urlx=url+"?ids=" + ids.get(0)+"&pcode=010110002&version=2.0.4&devid=4ac3fe96a6133de96904b8d3c8cfe16d&package=com.sevenVideo.app.android&sys=android&sysver=7.1.2&brand=realme&model=RMX1931&sj="+t;
-            String urlp = "/api.php/provide/videoDetailrealme4ac3fe96a6133de96904b8d3c8cfe16d"+ids.get(0)+"RMX1931com.sevenVideo.app.android010110002"+t+"android7.1.22.0.4"+t+"XSpeUFjJ";
-            String content = OkHttpUtil.string(urlx, getHeaders(urlp,t));
+            String url = siteUrl + "/api.php/provide/videoDetail?ids=" + ids.get(0);
+            String content = OkHttpUtil.string(url, getHeaders(url));
             JSONObject dataObject = new JSONObject(decryptResponse(content));
             JSONObject vObj = dataObject.getJSONObject("data");
             JSONObject result = new JSONObject();
@@ -257,11 +244,9 @@ public class Kunyu77 extends Spider {
             vodAtom.put("vod_actor", vObj.getString("actor"));
             vodAtom.put("vod_director", vObj.getString("director"));
             vodAtom.put("vod_content", vObj.getString("brief").trim());
-            t = String.valueOf(System.currentTimeMillis()/ 1000) ;
-            url = siteUrl + "/api.php/provide/videoPlaylist";
-            urlx =url+"?ids=" + ids.get(0)+"&pcode=010110002&version=2.0.4&devid=4ac3fe96a6133de96904b8d3c8cfe16d&package=com.sevenVideo.app.android&sys=android&sysver=7.1.2&brand=realme&model=RMX1931&sj="+t;
-            urlp = "/api.php/provide/videoPlaylistrealme4ac3fe96a6133de96904b8d3c8cfe16d"+ids.get(0)+"RMX1931com.sevenVideo.app.android010110002"+t+"android7.1.22.0.4"+t+"XSpeUFjJ";
-            content = OkHttpUtil.string(urlx, getHeaders(urlp,t));
+
+            url = siteUrl + "/api.php/provide/videoPlaylist?ids=" + ids.get(0);
+            content = OkHttpUtil.string(url, getHeaders(url));
             JSONArray episodes = new JSONObject(content).getJSONObject("data").getJSONArray("episodes");
             LinkedHashMap<String, ArrayList<String>> playlist = new LinkedHashMap<>();
             for (int i = 0; i < episodes.length(); i++) {
@@ -309,15 +294,12 @@ public class Kunyu77 extends Spider {
         try {
             String videoUrl = id;
             try {
-                String t = String.valueOf(System.currentTimeMillis()/ 1000);
-                String url = siteUrl + "/api.php/provide/parserUrl";
-                String urls=url+"?url=" + id+"&retryNum=0&pcode=010110002&version=2.0.4&devid=4ac3fe96a6133de96904b8d3c8cfe16d&package=com.sevenVideo.app.android&sys=android&sysver=7.1.2&brand=realme&model=RMX1931&sj="+t;
-                String urlm = "/api.php/provide/parserUrlrealme4ac3fe96a6133de96904b8d3c8cfe16dRMX1931com.sevenVideo.app.android010110002"+id+"android7.1.2"+id+"2.0.4"+t+"XSpeUFjJ";
-                String content = OkHttpUtil.string(urls, getHeaders(urlm,t));
+                String url = siteUrl + "/api.php/provide/parserUrl?url=" + id;
+                String content = OkHttpUtil.string(url, getHeaders(url));
                 JSONObject dataObj = new JSONObject(decryptResponse(content)).getJSONObject("data");
                 JSONObject playHeader = dataObj.optJSONObject("playHeader");
                 String jxUrl = dataObj.getString("url");
-                content = OkHttpUtil.string(jxUrl, getHeaders(jxUrl,""));
+                content = OkHttpUtil.string(jxUrl, getHeaders(jxUrl));
                 JSONObject result = Misc.jsonParse(jxUrl, content);
                 if (result != null) {
                     result.put("parse", 0);
@@ -357,17 +339,8 @@ public class Kunyu77 extends Spider {
     @Override
     public String searchContent(String key, boolean quick) {
         try {
-            String t = String.valueOf(System.currentTimeMillis()/ 1000);
-            String url = siteUrl + "/api.php/provide/searchVideo";
-            String urls=url+"?pcode=010110002&version=2.0.4&devid=4ac3fe96a6133de96904b8d3c8cfe16d&package=com.sevenVideo.app.android&sys=android&sysver=7.1.2&brand=realme&model=RMX1931&sj="+t+"&searchName="+ key+"&pg=1";
-
-            String urlm = "/api.php/provide/searchVideorealme4ac3fe96a6133de96904b8d3c8cfe16dRMX1931com.sevenVideo.app.android0101100021"+key+t+"android7.1.202.0.4"+t+"XSpeUFjJ";
-            HashMap hashMap = new HashMap();
-            hashMap.put("User-Agent", "okhttp/3.12.0");
-            String Ks=Misc.MD5(urlm, Misc.CharsetUTF8);
-            hashMap.put("TK",Ks);
-            hashMap.put("t",t);
-            String content = OkHttpUtil.string(urls, hashMap);
+            String url = siteUrl + "/api.php/provide/searchVideo?searchName=" + URLEncoder.encode(key);
+            String content = OkHttpUtil.string(url, getHeaders(url));
             JSONObject dataObject = new JSONObject(decryptResponse(content));
             JSONArray jsonArray = dataObject.getJSONArray("data");
             JSONArray videos = new JSONArray();
